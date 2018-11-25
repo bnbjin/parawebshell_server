@@ -2,9 +2,10 @@ package main
 
 import (
 	"flag"
+	// "github.com/bnbjin/parawebshell_server/config"
+	pws "github.com/bnbjin/parawebshell_server"
 	"log"
 	"time"
-	// "github.com/bnbjin/parawebshell_server/config"
 )
 
 const ()
@@ -28,5 +29,5 @@ func main() {
 		}
 	}()
 
-	log.Println("para web shell startup, version ", CurrentVersionNumber)
+	log.Println("para web shell startup, version ", pws.CurrentVersionNumber)
 }
