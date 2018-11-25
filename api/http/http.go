@@ -3,6 +3,7 @@ package http
 import (
 	cmap "github.com/orcaman/concurrent-map"
 	"log"
+	"net"
 	"os"
 )
 
@@ -12,6 +13,8 @@ var (
 )
 
 type Server struct {
+	listener net.Listener
+	conns    cmap.ConcurrentMap
 }
 
 func init() {
