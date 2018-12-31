@@ -1,7 +1,7 @@
 package main
 
 import (
-	// "context"
+	"context"
 	"flag"
 	// "github.com/bnbjin/parawebshell_server/config"
 	pws "github.com/bnbjin/parawebshell_server"
@@ -30,7 +30,7 @@ func main() {
 		}
 	}()
 
-	// ctxbg := context.Background()
+	ctx := context.Background()
 
 	/* 性能状态记录 */
 	proffCanceler, err := profileIfEnabled()
@@ -39,5 +39,11 @@ func main() {
 	}
 	defer proffCanceler()
 
+	/* 设置信号处理器 */
+	intrh, ctx := setupInterruptHandler(ctx)
+	defer intrh.Close()
+
 	log.Println("para web shell startup, version ", pws.CurrentVersionNumber)
+
+	time.Sleep(100 * time.Millisecond)
 }

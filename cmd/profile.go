@@ -21,8 +21,10 @@ func profileIfEnabled() (func(), error) {
 		if err != nil {
 			return nil, err
 		}
+
 		return stopProfilingFunc, nil
 	}
+
 	return func() {}, nil
 }
 
