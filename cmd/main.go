@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	// "github.com/bnbjin/parawebshell_server/config"
 	pws "github.com/bnbjin/parawebshell_server"
+	profile "github.com/bnbjin/parawebshell_server/profile"
 	tiny "github.com/go101/tinyrouter"
 )
 
@@ -37,7 +39,7 @@ func main() {
 	// ctxbg := context.Background()
 
 	/* profiling */
-	proffCanceler, err := profileIfEnabled()
+	proffCanceler, err := profile.ProfileIfEnabled()
 	if nil != err {
 		log.Panic(err)
 	}
@@ -106,4 +108,6 @@ func main() {
 	*/
 
 	log.Println("para web shell startup, version ", pws.CurrentVersionNumber)
+
+	os.Exit(0)
 }

@@ -1,4 +1,4 @@
-package main
+package profile
 
 import (
 	"log"
@@ -9,28 +9,29 @@ import (
 
 const (
 	EnvEnableProfiling = "PWS_PROF"
-	cpuProfile         = "pws.cpuprof"
-	heapProfile        = "pws.memprof"
+	CpuProfile         = "pws.cpuprof"
+	HeapProfile        = "pws.memprof"
 )
 
-func profileIfEnabled() (func(), error) {
+/**/
+func ProfileIfEnabled() (func(), error) {
 	// FIXME this is a temporary hack so profiling of asynchronous operations
 	// works as intended.
 	if os.Getenv(EnvEnableProfiling) != "" {
-		stopProfilingFunc, err := startProfiling() // TODO maybe change this to its own option... profiling makes it slower.
+		StopProfilingFunc, err := StartProfiling() // TODO maybe change this to its own option... profiling makes it slower.
 		if err != nil {
 			return nil, err
 		}
-		return stopProfilingFunc, nil
+		return StopProfilingFunc, nil
 	}
 	return func() {}, nil
 }
 
 // startProfiling begins CPU profiling and returns a `stop` function to be
 // executed as late as possible. The stop function captures the memprofile.
-func startProfiling() (func(), error) {
+func StartProfiling() (func(), error) {
 	// start CPU profiling as early as possible
-	ofi, err := os.Create(cpuProfile)
+	ofi, err := os.Create(CpuProfile)
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +39,7 @@ func startProfiling() (func(), error) {
 
 	go func() {
 		for range time.NewTicker(time.Second * 30).C {
-			err := writeHeapProfileToFile()
+			err := WriteHeapProfileToFile()
 			if err != nil {
 				log.Panic(err)
 			}
@@ -53,8 +54,9 @@ func startProfiling() (func(), error) {
 	return stopProfiling, nil
 }
 
-func writeHeapProfileToFile() error {
-	mprof, err := os.Create(heapProfile)
+/**/
+func WriteHeapProfileToFile() error {
+	mprof, err := os.Create(HeapProfile)
 	if err != nil {
 		return err
 	}
