@@ -1,7 +1,7 @@
 package main
 
 import (
-	// "context"
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -12,6 +12,7 @@ import (
 	// "github.com/bnbjin/parawebshell_server/config"
 	pws "github.com/bnbjin/parawebshell_server"
 	profile "github.com/bnbjin/parawebshell_server/profile"
+	signal "github.com/bnbjin/parawebshell_server/signal"
 	tiny "github.com/go101/tinyrouter"
 )
 
@@ -36,7 +37,7 @@ func main() {
 		}
 	}()
 
-	// ctxbg := context.Background()
+	ctx := context.Background()
 
 	/* profiling */
 	proffCanceler, err := profile.ProfileIfEnabled()
@@ -44,6 +45,10 @@ func main() {
 		log.Panic(err)
 	}
 	defer proffCanceler()
+
+	/* signal handling */
+	intrh, ctx := signal.SetupInterruptHandler(ctx)
+	defer intrh.Close()
 
 	/* api router */
 	routes := []tiny.Route{

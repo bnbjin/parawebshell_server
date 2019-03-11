@@ -24,6 +24,7 @@ func ProfileIfEnabled() (func(), error) {
 		}
 		return StopProfilingFunc, nil
 	}
+
 	return func() {}, nil
 }
 
