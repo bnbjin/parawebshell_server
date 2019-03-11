@@ -1,11 +1,19 @@
 package main
 
 import (
+	"context"
 	"flag"
+	"fmt"
+	"log"
+	"net/http"
+	"os"
+	"time"
+
 	// "github.com/bnbjin/parawebshell_server/config"
 	pws "github.com/bnbjin/parawebshell_server"
-	"log"
-	"time"
+	profile "github.com/bnbjin/parawebshell_server/profile"
+	signal "github.com/bnbjin/parawebshell_server/signal"
+	tiny "github.com/go101/tinyrouter"
 )
 
 const ()
@@ -29,5 +37,82 @@ func main() {
 		}
 	}()
 
+	ctx := context.Background()
+
+	/* profiling */
+	proffCanceler, err := profile.ProfileIfEnabled()
+	if nil != err {
+		log.Panic(err)
+	}
+	defer proffCanceler()
+
+	/* signal handling */
+	intrh, ctx := signal.SetupInterruptHandler(ctx)
+	defer intrh.Close()
+
+	/* api router */
+	routes := []tiny.Route{
+		{
+			Method:  "GET",
+			Pattern: "/base/get_info",
+			HandleFunc: func(w http.ResponseWriter, req *http.Request) {
+				//params := tiny.PathParams(req)
+				fmt.Fprintln(w, "version: "+pws.CurrentVersionNumber)
+			},
+		},
+		{
+			Method:  "GET",
+			Pattern: "/a/:b/c",
+			HandleFunc: func(w http.ResponseWriter, req *http.Request) {
+				params := tiny.PathParams(req)
+				fmt.Fprintln(w, "/a/:b/c", "b =", params.Value("b"))
+			},
+		},
+		{
+			Method:  "GET",
+			Pattern: "/a/:b/:c",
+			HandleFunc: func(w http.ResponseWriter, req *http.Request) {
+				params := tiny.PathParams(req)
+				fmt.Fprintln(w, "/a/:b/:c", "b =", params.Value("b"), "c =", params.Value("c"))
+			},
+		},
+		{
+			Method:  "GET",
+			Pattern: "/:a/b/c",
+			HandleFunc: func(w http.ResponseWriter, req *http.Request) {
+				params := tiny.PathParams(req)
+				fmt.Fprintln(w, "/:a/b/c", "a =", params.Value("a"))
+			},
+		},
+		{
+			Method:  "GET",
+			Pattern: "/:a/:b/:c",
+			HandleFunc: func(w http.ResponseWriter, req *http.Request) {
+				params := tiny.PathParams(req)
+				fmt.Fprintln(w, "/:a/:b/:c", "a =", params.Value("a"), "b =", params.Value("b"), "c =", params.Value("c"))
+			},
+		},
+	}
+
+	router := tiny.New(tiny.Config{Routes: routes})
+
+	log.Println("Starting service ...")
+	log.Fatal(http.ListenAndServe(":8080", router))
+
+	/*
+		$ curl localhost:8080/a/b/c
+		/a/b/:c c = c
+		$ curl localhost:8080/a/x/c
+		/a/:b/c b = x
+		$ curl localhost:8080/a/x/y
+		/a/:b/:c b = x c = y
+		$ curl localhost:8080/x/b/c
+		/:a/b/c a = x
+		$ curl localhost:8080/x/y/z
+		/:a/:b/:c a = x b = y c = z
+	*/
+
 	log.Println("para web shell startup, version ", pws.CurrentVersionNumber)
+
+	os.Exit(0)
 }
