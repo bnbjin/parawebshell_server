@@ -49,10 +49,10 @@ func main() {
 	routes := []tiny.Route{
 		{
 			Method:  "GET",
-			Pattern: "/a/b/:c",
+			Pattern: "/base/get_info",
 			HandleFunc: func(w http.ResponseWriter, req *http.Request) {
-				params := tiny.PathParams(req)
-				fmt.Fprintln(w, "/a/b/:c", "c =", params.Value("c"))
+				//params := tiny.PathParams(req)
+				fmt.Fprintln(w, "version: "+pws.CurrentVersionNumber)
 			},
 		},
 		{
